@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.itcast.dao.stat.StatDao">
+
+    <!--生产厂家的销量数据-->
+    <select id="findFactoryData" parameterType="String" resultType="map">
+        SELECT SUM(amount) value ,factory_name name FROM co_contract_product
+        WHERE company_id=#{companyId} GROUP BY factory_name
+    </select>
+    <!--产品销量排行榜数据-->
+    <select id="findSellData" parameterType="String" resultType="map">
+        SELECT product_no productNo, SUM(amount) amount FROM co_contract_product
+            WHERE company_id=#{companyId}
+            GROUP BY product_no
+            ORDER BY SUM(amount) DESC
+            LIMIT 0,10
+    </select>
+    <!--系统访问压力图数据-->
+    <select id="findOnlineData" parameterType="String" resultType="map">
+        SELECT A1 hour,IFNULL(info.counts,0) total FROM st_online_info com
+            LEFT JOIN(SELECT DATE_FORMAT(TIME,'%H') hours,COUNT(DATE_FORMAT(TIME,'%H')) counts
+            FROM st_sys_log GROUP BY DATE_FORMAT(TIME,'%H')) info
+            ON com.`A1`=info.hours
+    </select>
+</mapper>

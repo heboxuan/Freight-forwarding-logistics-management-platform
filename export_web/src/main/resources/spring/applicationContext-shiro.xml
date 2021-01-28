@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="
+      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+      http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <description>Shiro与Spring整合</description>
+
+    <!--redis配置
+    <bean id="redisManager" class="org.crazycake.shiro.RedisManager">
+        <property name="host" value="127.0.0.1:6379"></property>
+    </bean>
+    -->
+
+    <!--定义redis的缓存管理器
+    <bean id="cacheManager" class="org.crazycake.shiro.RedisCacheManager">
+        <property name="redisManager" ref="redisManager"></property>
+    </bean>
+    -->
+
+    <!--安全管理器-->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <!-- 引用自定义的realm -->
+        <property name="realm" ref="authRealm"/>
+        <!--缓存管理器
+        <property name="cacheManager" ref="cacheManager"></property>
+        -->
+    </bean>
+
+    <!-- 自定义Realm域的编写 -->
+    <bean id="authRealm" class="cn.itcast.web.shiro.AuthRealm">
+        <!-- 注入密码比较器 -->
+        <property name="credentialsMatcher" ref="customerCredentialsMatcher" ></property>
+    </bean>
+
+    <!-- 自定义的密码比较器 -->
+    <bean id="customerCredentialsMatcher" class="cn.itcast.web.shiro.CustomCredentialsMatcher"></bean>
+
+
+    <!--
+        定义代理过滤器
+            1、shiro中内置了10个过滤器
+            2、代理过滤器是为了简化web.xml的配置（在web.xml中配置代理过滤器即可）
+            3、代理过滤器的id 和 web.xml中配置的过滤器的名称一致
+            4、内部配置了shiro过滤器的应用
+    -->
+    <!-- filter-name这个名字的值来自于web.xml中filter的名字 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+
+        <property name="securityManager" ref="securityManager"/>
+        <!--登录页面  -->
+        <property name="loginUrl" value="/login.jsp"></property>
+        <!--没有权限，跳转的页面 -->
+        <property name="unauthorizedUrl" value="/unauthorized.jsp"></property>
+
+        <property name="filterChainDefinitions">
+            <!-- /**代表下面的多级目录也过滤 -->
+            <value>
+                <!--                /system/module/list.do = perms["模块管理"]-->
+
+                <!--
+                    perms["企业管理","部门管理"]
+                        * 同时满足多项权限才能访问
+                    需求：
+                       只要满足其中一项即可
+
+                /company/list.do=perms["企业管理","部门管理"]
+                 -->
+                <!--
+                    使用自定义过滤器完成配置
+                -->
+                <!--/company/list.do=myPerms["企业管理","部门管理"]-->
+                /company/**=perms["企业管理"]
+                /index.jsp = anon
+                /login.jsp = anon
+                /login.do = anon
+                /css/** = anon
+                /img/** = anon
+                /plugins/** = anon
+                /make/** = anon
+                /** = authc
+            </value>
+        </property>
+    </bean>
+
+
+    <!--shiro中内部支持注解配置：定义如下的配置项-->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+</beans>

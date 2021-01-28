@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="cn.itcast.dao.system.DeptDao" >
+
+  <resultMap id="BaseResultMap" type="cn.itcast.domain.system.Dept">
+    <id column="dept_id" property="id"></id>
+    <result column="dept_name" property="deptName"></result>
+    <result column="state" property="state"></result>
+    <result column="company_id" property="companyId"></result>
+    <result column="company_name" property="companyName"></result>
+    <!--
+        配置一对一的关系
+            select : 查询关联对象的SQL语句
+    -->
+    <association property="parent" column="parent_id" javaType="cn.itcast.domain.system.Dept"
+                 select="findById"></association>
+  </resultMap>
+
+  <!--分页查询-->
+  <select id="findAll" resultMap="BaseResultMap">
+        select * from pe_dept where company_id=#{companyId}
+    </select>
+
+  <!--分页查询-->
+  <select id="findById" resultMap="BaseResultMap">
+        select * from pe_dept where dept_id=#{id}
+    </select>
+
+  <!--保存部门-->
+  <insert id="save">
+    insert into pe_dept
+    (
+    dept_id,
+    dept_name,
+    parent_id,
+    state,
+    company_id,
+    company_name
+    )
+    values
+    (
+    #{id},
+    #{deptName},
+    #{parent.id},
+    #{state},
+    #{companyId},
+    #{companyName}
+    )
+</insert>
+
+  <!--更新-->
+  <update id="update">
+    update pe_dept
+    set
+        dept_name=#{deptName},
+        parent_id=#{parent.id},
+        state=#{state}
+    where dept_id=#{id}
+</update>
+  <delete id="delete">
+    delete from pe_dept where dept_id=#{id}
+  </delete>
+</mapper>

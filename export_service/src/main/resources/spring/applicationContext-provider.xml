@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--要求：dubbo配置文件不需要记忆（需要会改）-->
+    <description>spring整合dubbo的服务提供者</description>
+
+    <!--1.配置应用名称-->
+    <dubbo:application name="export_service"></dubbo:application>
+
+    <!--2.配置注册中心请求地址-->
+    <dubbo:registry address="zookeeper://127.0.0.1:2181"></dubbo:registry>
+
+    <!--3.配置协议类型
+        数据的传输协议：dubbo
+        端口：20881开始
+    -->
+    <dubbo:protocol name="dubbo" port="20881"></dubbo:protocol>
+
+    <!--4.配置dubbo注解的包扫描-->
+    <dubbo:annotation package="cn.itcast.service"></dubbo:annotation>
+</beans>
