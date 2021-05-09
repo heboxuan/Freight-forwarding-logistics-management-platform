@@ -1,0 +1,3 @@
+此项目的数据库名是saas-export
+此项目的数据库sql文件为saas-export.sql
+saas-export.sql中没有提供创建数据库的sql语句，必须手动创建数据库，然后运行saas-export.sql
